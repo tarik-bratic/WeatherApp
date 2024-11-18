@@ -1,59 +1,40 @@
 package com.example.weatherapp
 
 import android.os.Bundle
-import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.weatherapp.databinding.ActivityMainBinding
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.weatherapp.view.WeatherScreen
 import com.example.weatherapp.viewmodel.WeatherViewModel
 import com.example.weatherapp.viewmodel.WeatherViewModelFactory
 import com.example.weatherapp.repository.WeatherRepository
 import com.example.weatherapp.api.WeatherApiService
+import com.example.weatherapp.ui.theme.WeatherAppTheme
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-    private val viewModel: WeatherViewModel by viewModels {
-        WeatherViewModelFactory(WeatherRepository(WeatherApiService.create()))
-    }
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContent {
+            WeatherAppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    // Provide WeatherViewModel using a factory
+                    val weatherViewModel: WeatherViewModel = viewModel(
+                        factory = WeatherViewModelFactory(
+                            repository = WeatherRepository(WeatherApiService.create())
+                        )
+                    )
 
-        setupRecyclerView()
-
-        // Set up button click listener
-        binding.btnFetchWeather.setOnClickListener {
-            val latitude = binding.etLatitude.text.toString().toFloatOrNull()
-            val longitude = binding.etLongitude.text.toString().toFloatOrNull()
-
-            if (latitude != null && longitude != null) {
-                viewModel.getWeather(latitude, longitude)
-            } else {
-                binding.tvError.text = "Invalid latitude or longitude"
-                binding.tvError.visibility = View.VISIBLE
+                    // Pass the ViewModel to the WeatherScreen
+                    WeatherScreen(vm = weatherViewModel)
+                }
             }
-        }
-
-        // Observe ViewModel
-        observeViewModel()
-    }
-
-    private fun setupRecyclerView() {
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = WeatherAdapter()
-    }
-
-    private fun observeViewModel() {
-        viewModel.weatherLiveData.observe(this) { forecast ->
-            (binding.recyclerView.adapter as WeatherAdapter).submitList(forecast)
-        }
-
-        viewModel.errorLiveData.observe(this) { error ->
-            binding.tvError.text = error
-            binding.tvError.visibility = View.VISIBLE
         }
     }
 }

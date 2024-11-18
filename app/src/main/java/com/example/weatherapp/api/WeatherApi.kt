@@ -9,7 +9,6 @@ interface WeatherApi {
     suspend fun getForecast(
         @Query("latitude") lat: Float,
         @Query("longitude") lon: Float,
-        @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,cloud_cover",
-        @Query("timezone") timezone: String = "auto"
+        @Query("daily") daily: String = "temperature_2m_max",
     ): WeatherResponse
 }

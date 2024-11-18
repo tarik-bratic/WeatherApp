@@ -1,37 +1,38 @@
-package com.example.weatherapp
+package com.example.weatherapp.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.weatherapp.databinding.ItemWeatherBinding
-import com.example.weatherapp.model.DayForecast
 
 class WeatherAdapter : RecyclerView.Adapter<WeatherAdapter.WeatherViewHolder>() {
-    private val forecastList = mutableListOf<DayForecast>()
 
-    fun submitList(list: List<DayForecast>) {
-        forecastList.clear()
-        forecastList.addAll(list)
+    private val weatherData = mutableListOf<String>()
+
+    fun submitList(data: List<String>) {
+        weatherData.clear()
+        weatherData.addAll(data)
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherViewHolder {
-        val binding = ItemWeatherBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return WeatherViewHolder(binding)
+        val textView = TextView(parent.context).apply {
+            textSize = 18f
+            setPadding(16, 16, 16, 16)
+        }
+        return WeatherViewHolder(textView)
     }
 
     override fun onBindViewHolder(holder: WeatherViewHolder, position: Int) {
-        holder.bind(forecastList[position])
+        holder.bind(weatherData[position])
     }
 
-    override fun getItemCount() = forecastList.size
+    override fun getItemCount() = weatherData.size
 
-    class WeatherViewHolder(private val binding: ItemWeatherBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(forecast: DayForecast) {
-            binding.tvDate.text = forecast.date
-            binding.tvTemperature.text = "${forecast.temperature}°C"
-            binding.tvCloudCoverage.text = forecast.cloudCoverage
+    class WeatherViewHolder(private val textView: TextView) :
+        RecyclerView.ViewHolder(textView) {
+        fun bind(data: String) {
+            textView.text = data
         }
     }
 }
