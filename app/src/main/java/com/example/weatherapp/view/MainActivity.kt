@@ -24,14 +24,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Provide WeatherViewModel using a factory
                     val weatherViewModel: WeatherViewModel = viewModel(
                         factory = WeatherViewModelFactory(
                             repository = WeatherRepository(WeatherApiService.create())
                         )
                     )
 
-                    // Pass the ViewModel to the WeatherScreen
                     WeatherScreen(vm = weatherViewModel)
                 }
             }

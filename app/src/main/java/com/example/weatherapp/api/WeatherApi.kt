@@ -9,6 +9,6 @@ interface WeatherApi {
     suspend fun getForecast(
         @Query("latitude") lat: Float,
         @Query("longitude") lon: Float,
-        @Query("daily") daily: String = "temperature_2m_max",
+        @Query("hourly") hourly: String = "temperature_2m,weather_code,cloud_cover",
     ): WeatherResponse
 }

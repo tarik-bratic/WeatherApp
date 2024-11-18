@@ -2,7 +2,7 @@ package com.example.weatherapp.repository
 
 import com.example.weatherapp.api.WeatherApi
 import com.example.weatherapp.model.WeatherResponse
-import com.example.weatherapp.model.DailyForecast
+import com.example.weatherapp.model.HourlyForecast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -14,12 +14,14 @@ class WeatherRepository(private val api: WeatherApi) {
         }
     }
 
-    fun mapToDailyForecast(response: WeatherResponse): List<DailyForecast> {
-        val forecastList = mutableListOf<DailyForecast>()
-        for (i in response.daily.time.indices) {
-            val forecast = DailyForecast(
-                date = response.daily.time[i],
-                temperatureMax = response.daily.temperature_2m_max[i]
+    fun mapToHourlyForecast(response: WeatherResponse): List<HourlyForecast> {
+        val forecastList = mutableListOf<HourlyForecast>()
+        for (i in response.hourly.time.indices) {
+            val forecast = HourlyForecast(
+                time = response.hourly.time[i],
+                temperature = response.hourly.temperature_2m[i],
+                weatherCode = response.hourly.weather_code[i],
+                cloudCover = response.hourly.cloud_cover[i]
             )
             forecastList.add(forecast)
         }

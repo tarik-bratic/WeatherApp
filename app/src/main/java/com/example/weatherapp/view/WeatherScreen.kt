@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.weatherapp.model.DailyForecast
+import com.example.weatherapp.model.HourlyForecast
 import com.example.weatherapp.viewmodel.WeatherViewModel
 
 @Composable
@@ -68,8 +68,6 @@ fun WeatherScreen(
 
                     if (lat != null && lon != null) {
                         vm.getWeather(lat, lon)
-                    } else {
-
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -79,17 +77,13 @@ fun WeatherScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Error or Loading State
+            // Error State
             if (!errorMessage.value.isNullOrEmpty()) {
                 Text(
                     text = errorMessage.value ?: "Unknown Error",
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
-                )
-            } else if (weatherData.value.isEmpty()) {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(top = 32.dp)
                 )
             } else {
                 // Display weather data
@@ -108,7 +102,7 @@ fun WeatherScreen(
 }
 
 @Composable
-fun WeatherItem(forecast: DailyForecast) {
+fun WeatherItem(forecast: HourlyForecast) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -117,17 +111,20 @@ fun WeatherItem(forecast: DailyForecast) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = forecast.date,
+            text = forecast.time,
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
-            text = "${forecast.temperatureMax}°C",
+            text = "${forecast.temperature}°C",
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Text(
+            text = "${forecast.weatherCode}",
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Text(
+            text = "${forecast.cloudCover}%",
             style = MaterialTheme.typography.bodyLarge
         )
     }
-}
-
-@Composable
-fun AppContent(vm: WeatherViewModel) {
-    WeatherScreen(vm = vm)
 }
