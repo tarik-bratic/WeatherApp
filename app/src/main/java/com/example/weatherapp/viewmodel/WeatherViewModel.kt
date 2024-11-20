@@ -1,10 +1,10 @@
 package com.example.weatherapp.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.HourlyForecast
 import com.example.weatherapp.repository.WeatherRepository
@@ -23,12 +23,11 @@ class WeatherViewModel(
 
     fun getWeather(latitude: Float, longitude: Float) {
         if (NetworkUtils.isOnline(getApplication())) {
-            android.util.Log.d("NetworkCheck", "Device is online.")
+            Log.d("NetworkCheck", "Device is online.")
 
             viewModelScope.launch {
                 try {
                     val response = repository.fetchWeather(latitude, longitude)
-
                     val hourlyForecastList = repository.mapToHourlyForecast(response)
 
                     if (hourlyForecastList.isEmpty()) {
@@ -36,15 +35,24 @@ class WeatherViewModel(
                     } else {
                         _weatherLiveData.value = hourlyForecastList
                         _errorLiveData.value = null // Clear previous errors
+
+                        repository.saveHourlyForecast(hourlyForecastList)
                     }
                 } catch (e: Exception) {
                     _errorLiveData.value = "Error fetching weather: ${e.message}"
                 }
             }
         } else {
-            android.util.Log.d("NetworkCheck", "Device is offline.")
-
+            Log.d("NetworkCheck", "Device is offline.")
             _errorLiveData.value = "No internet connection. Please try again later."
+
+            val cachedData = repository.loadHourlyForecast()
+            if (cachedData.isNotEmpty()) {
+                _weatherLiveData.value = cachedData
+                _errorLiveData.value = null
+            } else {
+                _errorLiveData.value = "No internet connection and no cached data"
+            }
         }
     }
 }

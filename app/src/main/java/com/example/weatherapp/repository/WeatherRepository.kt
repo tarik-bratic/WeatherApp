@@ -1,16 +1,42 @@
 package com.example.weatherapp.repository
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.example.weatherapp.api.WeatherApi
 import com.example.weatherapp.model.WeatherResponse
 import com.example.weatherapp.model.HourlyForecast
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class WeatherRepository(private val api: WeatherApi) {
+class WeatherRepository(
+    private val api: WeatherApi,
+    context: Context
+) {
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
+    private val gson = Gson()
 
     suspend fun fetchWeather(latitude: Float, longitude: Float): WeatherResponse {
         return withContext(Dispatchers.IO) {
-            api.getForecast(latitude, longitude)
+            val response = api.getForecast(latitude, longitude)
+            saveWeatherResponse(response)
+            response
+        }
+    }
+
+    private fun saveWeatherResponse(response: WeatherResponse) {
+        val json = gson.toJson(response)
+        sharedPreferences.edit().putString("WeatherResponse", json).apply()
+    }
+
+    fun loadWeatherResponse(): WeatherResponse? {
+        val json = sharedPreferences.getString("WeatherResponse", null)
+        return if (json != null) {
+            gson.fromJson(json, WeatherResponse::class.java)
+        } else {
+            null
         }
     }
 
@@ -26,5 +52,20 @@ class WeatherRepository(private val api: WeatherApi) {
             forecastList.add(forecast)
         }
         return forecastList
+    }
+
+    fun saveHourlyForecast(forecast: List<HourlyForecast>) {
+        val json = gson.toJson(forecast)
+        sharedPreferences.edit().putString("HourlyForecast", json).apply()
+    }
+
+    fun loadHourlyForecast(): List<HourlyForecast> {
+        val json = sharedPreferences.getString("HourlyForecast", null)
+        return if (json != null) {
+            val type = object : TypeToken<List<HourlyForecast>>() {}.type
+            gson.fromJson(json, type)
+        } else {
+            emptyList()
+        }
     }
 }

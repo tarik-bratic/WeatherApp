@@ -18,6 +18,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val weatherRepository = WeatherRepository(
+            WeatherApiService.create(),
+            applicationContext
+        )
+
         setContent {
             WeatherAppTheme {
                 Surface(
@@ -27,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     val weatherViewModel: WeatherViewModel = viewModel(
                         factory = WeatherViewModelFactory(
                             application = this.application,
-                            repository = WeatherRepository(WeatherApiService.create())
+                            repository = weatherRepository
                         )
                     )
 
