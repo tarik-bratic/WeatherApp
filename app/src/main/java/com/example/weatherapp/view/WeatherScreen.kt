@@ -1,5 +1,6 @@
 package com.example.weatherapp.view
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.model.HourlyForecast
@@ -19,81 +21,154 @@ import com.example.weatherapp.viewmodel.WeatherViewModel
 fun WeatherScreen(
     vm: WeatherViewModel
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     val weatherData = vm.weatherLiveData.observeAsState(emptyList())
     val errorMessage = vm.errorLiveData.observeAsState()
     val latitude = remember { mutableStateOf("") }
     val longitude = remember { mutableStateOf("") }
 
     Scaffold { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Title
-            Text(
-                text = "Weather Information",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // Latitude Input
-            OutlinedTextField(
-                value = latitude.value,
-                onValueChange = { latitude.value = it },
-                label = { Text("Enter Latitude") },
+        if (isLandscape) {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-            )
-
-            // Longitude Input
-            OutlinedTextField(
-                value = longitude.value,
-                onValueChange = { longitude.value = it },
-                label = { Text("Enter Longitude") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-
-            // Fetch Weather Button
-            Button(
-                onClick = {
-                    val lat = latitude.value.toFloatOrNull()
-                    val lon = longitude.value.toFloatOrNull()
-
-                    if (lat != null && lon != null) {
-                        vm.getWeather(lat, lon)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Fetch Weather")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Error State
-            if (!errorMessage.value.isNullOrEmpty()) {
-                Text(
-                    text = errorMessage.value ?: "Unknown Error",
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                // Display weather data
-                LazyColumn(
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 16.dp)
+                        .weight(1f)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Text(
+                        text = "Weather Information",
+                        style = MaterialTheme.typography.headlineLarge,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = latitude.value,
+                        onValueChange = { latitude.value = it },
+                        label = { Text("Enter Latitude") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = longitude.value,
+                        onValueChange = { longitude.value = it },
+                        label = { Text("Enter Longitude") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    )
+
+                    Button(
+                        onClick = {
+                            val lat = latitude.value.toFloatOrNull()
+                            val lon = longitude.value.toFloatOrNull()
+
+                            if (lat != null && lon != null) {
+                                vm.getWeather(lat, lon)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Fetch Weather")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (!errorMessage.value.isNullOrEmpty()) {
+                        Text(
+                            text = errorMessage.value ?: "Unknown Error",
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                        )
+                    }
+                }
+
+                LazyColumn(
+                    modifier = Modifier.weight(2f)
                 ) {
                     items(weatherData.value) { forecast ->
                         WeatherItem(forecast = forecast)
+                    }
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Weather Information",
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                OutlinedTextField(
+                    value = latitude.value,
+                    onValueChange = { latitude.value = it },
+                    label = { Text("Enter Latitude") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+
+                OutlinedTextField(
+                    value = longitude.value,
+                    onValueChange = { longitude.value = it },
+                    label = { Text("Enter Longitude") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
+
+                Button(
+                    onClick = {
+                        val lat = latitude.value.toFloatOrNull()
+                        val lon = longitude.value.toFloatOrNull()
+
+                        if (lat != null && lon != null) {
+                            vm.getWeather(lat, lon)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Fetch Weather")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (!errorMessage.value.isNullOrEmpty()) {
+                    Text(
+                        text = errorMessage.value ?: "Unknown Error",
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 16.dp)
+                    ) {
+                        items(weatherData.value) { forecast ->
+                            WeatherItem(forecast = forecast)
+                        }
                     }
                 }
             }

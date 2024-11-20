@@ -20,23 +20,7 @@ class WeatherRepository(
 
     suspend fun fetchWeather(latitude: Float, longitude: Float): WeatherResponse {
         return withContext(Dispatchers.IO) {
-            val response = api.getForecast(latitude, longitude)
-            saveWeatherResponse(response)
-            response
-        }
-    }
-
-    private fun saveWeatherResponse(response: WeatherResponse) {
-        val json = gson.toJson(response)
-        sharedPreferences.edit().putString("WeatherResponse", json).apply()
-    }
-
-    fun loadWeatherResponse(): WeatherResponse? {
-        val json = sharedPreferences.getString("WeatherResponse", null)
-        return if (json != null) {
-            gson.fromJson(json, WeatherResponse::class.java)
-        } else {
-            null
+            api.getForecast(latitude, longitude)
         }
     }
 

@@ -15,17 +15,8 @@ object NetworkUtils {
             return false
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network: Network? = connectivityManager.activeNetwork
-            val capabilities = connectivityManager.getNetworkCapabilities(network)
-            val isOnline = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-            Log.d("NetworkCheck", "Network is online: $isOnline")
-            return isOnline
-        } else { // OLD API
-            val networkInfo = connectivityManager.activeNetworkInfo
-            val isOnline = networkInfo?.isConnected == true
-            Log.d("NetworkCheck", "Network is online: $isOnline")
-            return isOnline
-        }
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }
