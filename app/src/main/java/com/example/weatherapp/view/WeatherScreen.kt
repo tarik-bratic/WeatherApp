@@ -1,6 +1,7 @@
 package com.example.weatherapp.view
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,8 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.weatherapp.R
 import com.example.weatherapp.model.HourlyForecast
 import com.example.weatherapp.viewmodel.WeatherViewModel
 
@@ -193,9 +196,18 @@ fun WeatherItem(forecast: HourlyForecast) {
             text = "${forecast.temperature}°C",
             style = MaterialTheme.typography.bodyLarge
         )
-        Text(
-            text = "${forecast.weatherCode}",
-            style = MaterialTheme.typography.bodyLarge
+
+        val weatherImageRes = when {
+            forecast.cloudCover <= 25 -> R.drawable.sunny
+            forecast.cloudCover <= 50 -> R.drawable.sun_with_little_clouds
+            forecast.cloudCover <= 75 -> R.drawable.sun_with_clouds
+            else -> R.drawable.just_clouds
+        }
+
+        Image(
+            painter = painterResource(id = weatherImageRes),
+            contentDescription = "Weather Icon",
+            modifier = Modifier.size(40.dp)
         )
         Text(
             text = "${forecast.cloudCover}%",
